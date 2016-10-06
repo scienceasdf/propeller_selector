@@ -208,12 +208,6 @@ int main()
     double power[46];//={.007, .053,.177,.46,.97,1.698};
     double torque[46];//={.0429, 1.685 , 3.723,7.254,12.221,17.836};
     double thrust[46];//={.4, 1.605, 3.623,6.53,10.368,15.165};
-    /*for(int i=0;i<6;++i){
-        n[i]*=1e3;
-        power[i]*=735;
-        torque[i]*=0.11298;
-        thrust[i]*=.454;
-    }*/
 
     double jk1,jk2,jk3,jk4,jk5;
     std::stringstream stream,ss1;
@@ -245,14 +239,10 @@ int main()
     }
 
     while(std::getline(index,file)){
-        //std::cout<<file;
         Trim(file);
-        //std::cout<<file<<"o-o\n";
         ss1.clear();
         ss1.str(file);
         ss1>>file;
-
-        //std::cout<<("E:\\APC propeller_database\\"+file)<<"\n";
 
         fin.open("E:\\APC propeller_database\\"+file);
         counter=0;
@@ -262,12 +252,12 @@ int main()
         else{
 
             while(std::getline(fin,line)){
-                //Trim(line);
+
                 iter1=line.begin();
                 while((*iter1)==' '){
                     iter1=line.erase(iter1);
                 }
-                //std::cout<<"\n";
+
                 if(*iter1=='P'){
                     ++iter1;
                     if(*iter1=='R'){
@@ -277,7 +267,6 @@ int main()
                         stream>>temp;
                         stream>>temp;
                         stream>>n[counter];
-                        //std::cout<<n[counter]<<"\n";
                     }
                 }
 
@@ -307,7 +296,6 @@ int main()
                 power[i]*=735;
                 torque[i]*=0.11298;
                 thrust[i]*=.454;
-                //std::cout<<n[i]<<"\t"<<power[i]<<"\t"<<torque[i]<<"\t"<<thrust[i]<<"\n";
             }
 
             n_power.clear();
@@ -329,17 +317,12 @@ int main()
                 MaxV=p1.volt;
                 MaxRot=p1.rot;
                 MaxFileName=file;
-                //std::cout<<"\n";
             }
             fin.close();
         }
     }
 
     std::cout<<MaxThru<<"\t"<<MaxV<<"\t"<<MaxI<<"\t"<<MaxRot<<"\t"<<MaxFileName;
-
-    //std::cout<<p1.rot<<"\t"<<p1.volt<<"\t"<<p1.current;
-    //std::cout<<"\n"<<p1.thru;
-    //std::cout<<"\n"<<p1.eta<<"\t"<<p1.eta_motor;
     return 0;
 
 }
