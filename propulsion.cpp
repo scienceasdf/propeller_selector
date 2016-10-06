@@ -48,6 +48,7 @@ public:
 
     void addPoint(T x, T y) {vecX.push_back(x); vecY.push_back(y); sort(); isUpdated=false;}
     T getPos(T x);
+    void clear();
 private:
     bool isUpdated;
     T* m;
@@ -129,6 +130,12 @@ template<class T> void spline<T>::sort()
                 }
 }
 
+template<class T> void spline<T>::clear()
+{
+    vecX.clear();
+    vecY.clear();
+}
+
 class motor{
 public:
     double Kv;
@@ -174,19 +181,33 @@ void propulsion::run(spline<double>& p_curve, spline<double>& thrust_curve, spli
         i=moment/Km;
         volt=i*mot.Ra+rev/mot.Kv;
     }
-    current=i;
-    eta_motor=power/current/volt;
-    thru=thrust_curve.getPos(rev);
-    eta=speed*thru/current/i;
-    rot=rev;
+    if(i<0){
+        rot=.0;
+        thru=.0;
+        eta=.0;
+    }
+    else{
+        current=i;
+        eta_motor=power/current/volt;
+        thru=thrust_curve.getPos(rev);
+        eta=speed*thru/current/i;
+        rot=rev;
+    }
 }
+
+void Trim(std::string &str)
+ {
+ int s=str.find_first_not_of(" \t");
+ int e=str.find_last_not_of(" \t");
+ str=str.substr(s,e-s+1);
+ }
 
 int main()
 {
-    double n[26];//={1,2,3,4,5,6};
-    double power[26];//={.007, .053,.177,.46,.97,1.698};
-    double torque[26];//={.0429, 1.685 , 3.723,7.254,12.221,17.836};
-    double thrust[26];//={.4, 1.605, 3.623,6.53,10.368,15.165};
+    double n[46];//={1,2,3,4,5,6};
+    double power[46];//={.007, .053,.177,.46,.97,1.698};
+    double torque[46];//={.0429, 1.685 , 3.723,7.254,12.221,17.836};
+    double thrust[46];//={.4, 1.605, 3.623,6.53,10.368,15.165};
     /*for(int i=0;i<6;++i){
         n[i]*=1e3;
         power[i]*=735;
@@ -195,85 +216,130 @@ int main()
     }*/
 
     double jk1,jk2,jk3,jk4,jk5;
-    std::stringstream stream;
+    std::stringstream stream,ss1;
     std::string temp;
     int counter=0;
 
-    std::ifstream fin("E:\\APC propeller_database\\PER3_15x6E.dat");
-    if(!fin.is_open()){
-        std::cout << "Error opening file";
-        exit (1);
-    }
-
-    std::string line;
     std::string::iterator iter1,iter2;
+    motor mt1(1100,.042);
+    propulsion p1(10.5,60,mt1);
 
-    while(std::getline(fin,line)){
-        iter1=line.begin();
-        while((*iter1)==' '){
-            iter1=line.erase(iter1);
+    std::ifstream index("E:\\APC propeller_database\\PER2_TITLEDAT.txt");
+    std::ifstream fin;
 
-        }
-
-        if(*iter1=='P'){
-            ++iter1;
-            if(*iter1=='R'){
-                stream.clear();
-                stream.str(line);
-                stream>>temp;
-                stream>>temp;
-                stream>>temp;
-                stream>>n[counter];
-            }
-        }
-
-        if(*iter1=='0'){
-            ++iter1;
-            if(*iter1=='.'){
-                ++iter1;
-                if(*iter1=='0'){
-                    stream.clear();
-                    stream.str(line);
-
-                    stream>>jk1;
-                    stream>>jk2;
-                    stream>>jk3;
-                    stream>>jk4;
-                    stream>>jk5;
-                    stream>>power[counter];
-                    stream>>torque[counter];
-                    stream>>thrust[counter];
-                    ++counter;
-                }
-            }
-        }
-    }
-
-    for(int i=0;i<counter;++i){
-        power[i]*=735;
-        torque[i]*=0.11298;
-        thrust[i]*=.454;
-        //std::cout<<n[i]<<"\t"<<power[i]<<"\t"<<torque[i]<<"\t"<<thrust[i]<<"\n";
-    }
+    double MaxThru=0.0,MaxI=.0,MaxV=0.0,MaxRot=.0;
+    std::string MaxFileName;
 
     spline<double> n_power;
     spline<double> n_thrust;
     spline<double> n_torque;
 
-    for(int i=0;i<counter;++i){
-        n_power.addPoint(n[i],power[i]);
-        n_thrust.addPoint(n[i],thrust[i]);
-        n_torque.addPoint(n[i],torque[i]);
+    if(!index.is_open()){
+        std::cout << "Error opening index file";
+        exit (1);
     }
 
+    std::string line,file;
+    for(int i=0;i<4;++i){
+        std::getline(index,line);
+    }
 
-    motor mt1(340,.143);
-    propulsion p1(13.0,6,mt1);
-    p1.run(n_power,n_thrust,n_torque);
+    while(std::getline(index,file)){
+        //std::cout<<file;
+        Trim(file);
+        //std::cout<<file<<"o-o\n";
+        ss1.clear();
+        ss1.str(file);
+        ss1>>file;
 
-    std::cout<<p1.rot<<"\t"<<p1.volt<<"\t"<<p1.current;
-    std::cout<<"\n"<<p1.thru;
-    std::cout<<"\n"<<p1.eta<<"\t"<<p1.eta_motor;
+        //std::cout<<("E:\\APC propeller_database\\"+file)<<"\n";
+
+        fin.open("E:\\APC propeller_database\\"+file);
+        counter=0;
+        if(!fin.is_open()){
+            //std::cout << "Error opening file";
+        }
+        else{
+
+            while(std::getline(fin,line)){
+                //Trim(line);
+                iter1=line.begin();
+                while((*iter1)==' '){
+                    iter1=line.erase(iter1);
+                }
+                //std::cout<<"\n";
+                if(*iter1=='P'){
+                    ++iter1;
+                    if(*iter1=='R'){
+                        stream.clear();
+                        stream.str(line);
+                        stream>>temp;
+                        stream>>temp;
+                        stream>>temp;
+                        stream>>n[counter];
+                        //std::cout<<n[counter]<<"\n";
+                    }
+                }
+
+                if(*iter1=='0'){
+                    ++iter1;
+                    if(*iter1=='.'){
+                        ++iter1;
+                        if(*iter1=='0'){
+                            stream.clear();
+                            stream.str(line);
+
+                            stream>>jk1;
+                            stream>>jk2;
+                            stream>>jk3;
+                            stream>>jk4;
+                            stream>>jk5;
+                            stream>>power[counter];
+                            stream>>torque[counter];
+                            stream>>thrust[counter];
+                            ++counter;
+                        }
+                    }
+                }
+            }
+
+            for(int i=0;i<counter;++i){
+                power[i]*=735;
+                torque[i]*=0.11298;
+                thrust[i]*=.454;
+                //std::cout<<n[i]<<"\t"<<power[i]<<"\t"<<torque[i]<<"\t"<<thrust[i]<<"\n";
+            }
+
+            n_power.clear();
+            n_thrust.clear();
+            n_torque.clear();
+
+            for(int i=0;i<counter;++i){
+                n_power.addPoint(n[i],power[i]);
+                n_thrust.addPoint(n[i],thrust[i]);
+                n_torque.addPoint(n[i],torque[i]);
+            }
+
+            p1.speed=jk1;
+            p1.run(n_power,n_thrust,n_torque);
+
+            if(MaxThru<p1.thru){
+                MaxI=p1.current;
+                MaxThru=p1.thru;
+                MaxV=p1.volt;
+                MaxRot=p1.rot;
+                MaxFileName=file;
+                //std::cout<<"\n";
+            }
+            fin.close();
+        }
+    }
+
+    std::cout<<MaxThru<<"\t"<<MaxV<<"\t"<<MaxI<<"\t"<<MaxRot<<"\t"<<MaxFileName;
+
+    //std::cout<<p1.rot<<"\t"<<p1.volt<<"\t"<<p1.current;
+    //std::cout<<"\n"<<p1.thru;
+    //std::cout<<"\n"<<p1.eta<<"\t"<<p1.eta_motor;
     return 0;
 
 }
