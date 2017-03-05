@@ -202,6 +202,16 @@ void Trim(std::string &str)
  str=str.substr(s,e-s+1);
  }
 
+ inline bool RPM_line(std::string::iterator& iter)
+ {
+     // The line is like " PRO PRPM =       10000"
+     if(*iter=='P'){
+        ++iter;
+        if(*iter=='R') return true;
+     }
+     return false;
+ }
+
 int main()
 {
     double n[46];//={1,2,3,4,5,6};
@@ -258,16 +268,14 @@ int main()
                     iter1=line.erase(iter1);
                 }
 
-                if(*iter1=='P'){
-                    ++iter1;
-                    if(*iter1=='R'){
-                        stream.clear();
-                        stream.str(line);
-                        stream>>temp;
-                        stream>>temp;
-                        stream>>temp;
-                        stream>>n[counter];
-                    }
+                if(RPM_line(iter1)){
+                    stream.clear();
+                    stream.str(line);
+                    stream>>temp;
+                    stream>>temp;
+                    stream>>temp;
+                    stream>>n[counter];
+
                 }
 
                 if(*iter1=='0'){
