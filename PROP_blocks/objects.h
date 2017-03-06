@@ -35,6 +35,7 @@ public:
     void run();
     void dynamic_run();
     void get_curve(std::string fileName);
+    double eta_prop();
 
     propulsion(double U, double I, motor mt, double rto, double eta):
         U_ub(U), I_ub(I), mot(mt), gear_rto(rto), eta_gear(eta) {}
