@@ -92,19 +92,21 @@ template<class T> void spline<T>::sort()
 {
     const size_t n=vecX.size();
 
-    for(int gap=n/2; 0<gap; gap/=2)
+    /*for(int gap=n/2; 0<gap; gap/=2)
         for(int i=gap; i<n; i++)
             for(int j=i-gap; 0<=j; j-=gap)
                 if(vecX[j+gap]<vecX[j]){
                     std::swap(vecX[j],vecX[j+gap]);
                     std::swap(vecY[j],vecY[j+gap]);
-                }
+                }*/
 }
 
 template<class T> void spline<T>::clear()
 {
+
     vecX.clear();
     vecY.clear();
+
 }
 
 #endif // SPLINE_H
