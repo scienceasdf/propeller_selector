@@ -48,11 +48,7 @@ protected:
     spline<double> dynamic_torque_curve;
 
 private:
-    //These varibles are just for less construction cost
-    std::ifstream fin;
-    std::string line;
-    std::string::iterator iter1;
-    std::stringstream stream,ss1;
+
 };
 
 #endif // OBJECTS_H
