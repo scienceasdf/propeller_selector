@@ -21,7 +21,7 @@ inline bool RPM_line(std::string::iterator& iter)
 }
 
 void propulsion::run()
-{
+{   
     double Km=30.0/mot.Kv/3.14159265358;
     double rev=mot.Kv*U_ub/gear_rto;
 
@@ -102,6 +102,11 @@ void propulsion::dynamic_run()
 
 void propulsion::get_curve(std::string fileName)
 {
+    static std::ifstream fin;
+    static std::string line;
+    static std::string::iterator iter1;
+    static std::stringstream stream;
+
     bool last_interpolated=true;
 
     double jk1;
@@ -123,6 +128,7 @@ void propulsion::get_curve(std::string fileName)
         //std::cout << "Error opening file";
     }
     else{
+
         std::getline(fin,line);
         stream.clear();
         stream.str(line);
