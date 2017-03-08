@@ -66,7 +66,7 @@ void propulsion::dynamic_run()
     double i=moment/Km/gear_rto/eta_gear;
     volt=i*mot.Ra+rev/mot.Kv*gear_rto;
     while( (volt>U_ub) || (i>I_ub) ){
-        rev-=100.0;
+        rev-=50.0;
         power=dynamic_p_curve.getPos(rev);
 
         moment=dynamic_torque_curve.getPos(rev);
