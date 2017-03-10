@@ -24,6 +24,7 @@ private:
     Ui::Demo *ui;
 
     bool propOK(std::string name, double staThru, double dyThru, double etaProp, double etaTol);
+    bool ing;
 };
 
 void Trim(std::string &str);

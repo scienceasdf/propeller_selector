@@ -14,7 +14,7 @@
 
 Demo::Demo(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Demo)
+    ui(new Ui::Demo),ing(false)
 {
     ui->setupUi(this);
 
@@ -23,6 +23,9 @@ Demo::Demo(QWidget *parent) :
     flags |= Qt::WindowCloseButtonHint;
     flags |= Qt::MSWindowsFixedSizeDialogHint;
     setWindowFlags (flags);
+
+    //ui->CalcButton->setEnabled(false);
+
 
 }
 
@@ -40,6 +43,8 @@ void Trim(std::string &str)
 
 void Demo::on_CalcButton_clicked()
 {
+    ui->CalcButton->setEnabled(false);
+
     QString valueStr=ui->KV_Input->text();
     double KV=valueStr.toDouble();
     valueStr=ui->r_Input->text();
@@ -66,13 +71,13 @@ void Demo::on_CalcButton_clicked()
     valueStr=ui->minEtaInput->text();
     double etaProp=valueStr.toDouble()/100.0;
 
-
-    auto reportWidget=new report();
+    auto reportWidget=new report(p1);
 
     getAll(*reportWidget,minStaThru,minDyThru,etaProp,ui->etaTolInput->text().toDouble()/100.0,p1);
     reportWidget->initShow();
-    reportWidget->pro=p1;
+    ui->CalcButton->setEnabled(true);
 
     reportWidget->activateWindow();
+
 
 }
