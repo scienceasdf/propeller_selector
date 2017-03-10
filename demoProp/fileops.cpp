@@ -60,3 +60,35 @@ void getAll(report& rep,
             }
     }
 }
+
+
+void searchProp(const std::string&& str,
+           std::vector<std::string>& nameLists,
+           std::vector<std::string>& pathLists)
+{
+    std::stringstream ss1;
+    QString strPath = QCoreApplication::applicationDirPath();
+
+    pathLists.clear();
+    nameLists.clear();
+
+    std::ifstream index(strPath.toStdString()+"\\database\\PER2_TITLEDAT.txt");
+    std::string line,info1,info2;
+
+    std::getline(index,line);
+    std::getline(index,line);
+    std::getline(index,line);
+    std::getline(index,line);
+
+    while(std::getline(index,line)){
+        std::size_t found=line.find(str);
+        if(found!=std::string::npos){
+            ss1.clear();
+            ss1.str(line);
+            ss1>>info1>>info2;
+            pathLists.push_back(info1);
+            nameLists.push_back(info2);
+        }
+    }
+}
+
