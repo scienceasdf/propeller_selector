@@ -16,6 +16,7 @@ class report : public QWidget
 
 public:
     explicit report(QWidget *parent = 0);
+    report(propulsion& p1);
     ~report();
 
     std::vector<std::string> props;
@@ -30,6 +31,8 @@ public:
 
 private slots:
     void on_propBox_currentIndexChanged(int index);
+
+    void on_detailButton_clicked();
 
 private:
     Ui::report *ui;

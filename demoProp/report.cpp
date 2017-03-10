@@ -3,6 +3,8 @@
 
 #include<string>
 #include<QString>
+#include<objects.h>
+#include<detail.h>
 
 report::report(QWidget *parent) :
     QWidget(parent),
@@ -15,6 +17,21 @@ report::report(QWidget *parent) :
     flags |= Qt::WindowCloseButtonHint;
     flags |= Qt::MSWindowsFixedSizeDialogHint;
     setWindowFlags (flags);
+}
+
+report::report(propulsion& p1) :
+    ui(new Ui::report),pro(p1.U_ub,p1.I_ub,p1.mot,p1.gear_rto,p1.eta_gear)
+{
+    ui->setupUi(this);
+
+    Qt::WindowFlags flags = 0;
+    flags |= Qt::WindowMinimizeButtonHint;
+    flags |= Qt::WindowCloseButtonHint;
+    flags |= Qt::MSWindowsFixedSizeDialogHint;
+    setWindowFlags (flags);
+
+    pro.speed=p1.speed;
+
 }
 
 report::~report()
@@ -39,4 +56,13 @@ void report::on_propBox_currentIndexChanged(int index)
     ui->dynamicThruLabel->setText("动拉力为"+QString::number(dynamicThrust[index])+"牛顿");
     ui->etaPropLabel->setText("空速下螺旋桨效率为"+QString::number(etaProp[index]*100.0)+"%");
     ui->etaTotalLabel->setText("空速下动力系统总效率为"+QString::number(etaTotal[index]*100.0)+"%");
+}
+
+void report::on_detailButton_clicked()
+{
+    auto detailWidget=new detail(pro);
+    //detailWidget->pro1=pro;
+    detailWidget->propPath=files[ui->propBox->currentIndex()];
+    detailWidget->initShow();
+
 }

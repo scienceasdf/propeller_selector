@@ -3,6 +3,7 @@
 
 #include<vector>
 
+//void root(double* a, double* b, double* c, double* d, int n,double* x);
 double* root(double* a, double* b, double* c, double* d, int n);
 
 template<class T>
@@ -10,19 +11,22 @@ class spline{
 public:
     std::vector<T> vecX;
     std::vector<T> vecY;
-    spline() {}
+    spline() :memory(false) {}
     spline(T* xFirst, T* xLast, T* yFirst);
     /*spline(std::vector<T>::iterator xFirst,
            std::vector<T>::iterator xLast,
            std::vector<T>::iterator yFirst);*/
-    ~spline(){delete [] m;}
+    ~spline(){if(memory){delete [] m;}}
 
-    void addPoint(T x, T y) {vecX.push_back(x); vecY.push_back(y); sort(); isUpdated=false;}
+    void addPoint(T x, T y) {vecX.push_back(x); vecY.push_back(y); sort(); isUpdated=false; memory=false;}
     T getPos(T x);
     void clear();
+
 private:
     bool isUpdated;
+    bool memory;
     T* m;
+
     void sort();
 };
 
@@ -52,7 +56,12 @@ template<class T> T spline<T>::getPos(T x)
         a[n-1]=1.0;
         beta[n]=3.0/h[n-1]*(vecY[n]-vecY[n-1]);
 
+        if(memory){
+            delete [] m;
+            memory=false;
+        }
         m=root(a,b,c,beta,n+1);
+        memory=true;
         delete [] alpha;
         delete [] beta;
         delete [] a;
@@ -105,6 +114,10 @@ template<class T> void spline<T>::clear()
 {
     vecX.clear();
     vecY.clear();
+    if(memory){
+        delete [] m;
+        memory=false;
+    }
 }
 
 #endif // SPLINE_H
