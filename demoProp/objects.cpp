@@ -19,24 +19,25 @@ void propulsion::run()
 {
     double Km=30.0/mot.Kv/3.14159265358;
     double rev=mot.Kv*U_ub/gear_rto;
+    double dI=mot.noLoadCurr/10.0;
 
     double moment,power;
     power=p_curve.getPos(rev);
     moment=torque_curve.getPos(rev);
 
 
-    double i=moment/Km/gear_rto/eta_gear;
+    double i=moment/Km/gear_rto/eta_gear+dI*U_ub;
     volt=i*mot.Ra+rev/mot.Kv*gear_rto;
     while( (volt>U_ub) || (i>I_ub) ){
-        rev-=100.0;
+        rev-=50.0;
         power=p_curve.getPos(rev);
 
         moment=torque_curve.getPos(rev);
 
-        i=moment/Km/gear_rto/eta_gear;
+        i=moment/Km/gear_rto/eta_gear+dI*volt;
         volt=i*mot.Ra+rev/mot.Kv*gear_rto;
     }
-    if(i<0){
+    if(i<0 || rev>(*(--p_curve.vecX.end())+2000)){
         current=.0;
         rot=.0;
         thru=.0;
@@ -57,6 +58,7 @@ void propulsion::dynamic_run()
 {
     double Km=30.0/mot.Kv/3.14159265358;
     double rev=mot.Kv*U_ub/gear_rto;
+    double dI=mot.noLoadCurr/10.0;
     //rev=std::max(rev,dynamic_torque_curve.vecX[0]);
     double x=mot.Kv/Km;
     double moment,power;
@@ -64,15 +66,15 @@ void propulsion::dynamic_run()
     moment=dynamic_torque_curve.getPos(rev);
     //std::cout<<moment<<"bb\n";
 
-    double i=moment/Km/gear_rto/eta_gear;
+    double i=moment/Km/gear_rto/eta_gear+dI*U_ub;
     volt=i*mot.Ra+rev/mot.Kv*gear_rto;
     while( (volt>U_ub) || (i>I_ub) ){
-        rev-=100.0;
+        rev-=50.0;
         power=dynamic_p_curve.getPos(rev);
 
         moment=dynamic_torque_curve.getPos(rev);
 
-        i=moment/Km/gear_rto/eta_gear;
+        i=moment/Km/gear_rto/eta_gear+dI*volt;
         volt=i*mot.Ra+rev/mot.Kv*gear_rto;
     }
     if(i<0){
@@ -168,7 +170,7 @@ void propulsion::get_curve(std::string fileName)
                     stream.str(line);
 
                     stream>>v;
-                    v*=.44704;
+                    v*=.44704;  // Right, 1mph=1.609344(Km/h)=(1.609344/3.6)(m/s)
                     if(v==.0){
                         stream>>jk1>>jk1>>jk1>>jk1>>power[counter]>>torque[counter]>>thrust[counter];
                         p2=power[counter];
@@ -200,7 +202,7 @@ void propulsion::get_curve(std::string fileName)
 
         //#pragma omp parallel for num_threads(4)
         for(int i=0;i<counter;++i){
-            power[i]*=735;
+            power[i]*=745.7;    //this might be 735, I don't know
             torque[i]*=0.11298;
             thrust[i]*=4.45;
             dynamic_power[i]*=735;
@@ -241,3 +243,6 @@ double propulsion::eta_prop()
 {
     return ((eta/eta_gear)/eta_motor);
 }
+
+
+
