@@ -6,6 +6,12 @@
 #include<objects.h>
 #include<detail.h>
 
+#ifdef _MSC_VER
+#if _MSC_VER >= 1600
+#pragma execution_character_set("utf-8")
+#endif
+#endif
+
 report::report(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::report)
@@ -48,6 +54,9 @@ void report::initShow()
         ui->propBox->addItem(s1);
     }
     show();
+    if(ui->propBox->count()==0){
+        ui->detailButton->setEnabled(false);
+    }
 }
 
 void report::on_propBox_currentIndexChanged(int index)
